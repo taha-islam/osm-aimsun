@@ -30,7 +30,6 @@ S: <section2>
 if delete_uturns is True, this script will delete u-turns at the beginning and 
 end of the RT bay
 """
-#2455565, 1521115, 1398519
 RTURN_THRESHOLD = -120
 
 delete_uturns = True
@@ -50,7 +49,7 @@ node_type = model.getType('GKNode')
 signal_attr = node_type.getColumn('GKNode::signalized', 
                                  GKType.eSearchOnlyThisType)
 counter = 0
-for node_id in model.getCatalog().getObjectsByType(node_type): #[2455565]:#
+for node_id in model.getCatalog().getObjectsByType(node_type): 
     node = model.getCatalog().find(node_id)
     if node is not None and \
         node.getDataValueInt(signal_attr) != 0 and \

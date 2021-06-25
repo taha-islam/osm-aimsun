@@ -17,7 +17,6 @@ def delete_obj(model, obj):
 deleted_sections_count = 0
 section_type = model.getType("GKSection") 
 for section_id in model.getCatalog().getObjectsByType(section_type):
-    #section_id = 963489
     if max_no_to_process is not None and \
         deleted_sections_count >= max_no_to_process:
         break
@@ -39,7 +38,7 @@ for section_id in model.getCatalog().getObjectsByType(section_type):
         elif down_sections[0].getNumEntranceSections() == 1:
             #merge with downstream section
             sections_to_merge = [section] + down_sections
-            section_to_keep = down_sections[0]
+            section_to_keep = section
             node = section.getDestination()
     elif section.getNumEntranceSections() == 1 and \
         up_sections[0].getNumExitSections() == 1:
@@ -51,9 +50,12 @@ for section_id in model.getCatalog().getObjectsByType(section_type):
         down_sections[0].getNumEntranceSections() == 1:
         #merge with downstream section
         sections_to_merge = [section] + down_sections
-        section_to_keep = down_sections[0]
+        section_to_keep = section
         node = section.getDestination()
-        
+    # cannot merge sections with different number of lanes
+    if sections_to_merge[0].getExitLanes()[-1] != \
+        sections_to_merge[1].getEntryLanes()[-1]:
+            continue
     # merging sections if one of the above tests passed
     if node is not None:
         # delete the turn between the two sections that will be merged
@@ -66,9 +68,10 @@ for section_id in model.getCatalog().getObjectsByType(section_type):
         cmd.setSelection(section_to_keep, sections_to_merge)
         model.getCommander().addCommand(cmd)
         # clear selection
-        active_view = GKGUISystem.getGUISystem().getActiveGui().getActiveView()
-        active_view.selectAll()
-        active_view.inverseSelection()
+        active_gui = GKGUISystem.getGUISystem().getActiveGui()
+        selection = model.getGeoModel().getSelection()
+        selection.clear()
+        active_gui.invalidateViews()
         # increment counters
         deleted_sections_count += 1
         if deleted_sections_count % 100 == 0:
